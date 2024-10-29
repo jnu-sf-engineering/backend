@@ -1,5 +1,5 @@
 - 제목: <task-type>: <PR-title>(<#PR-number>)
-  예) feat<#ticket-number>: pull request template 작성
+  예) feat: pull request template 작성
   (확인 후 지워주세요)
 
 <!--연관된 티켓 번호를 작성하세요. 예) #111-->
