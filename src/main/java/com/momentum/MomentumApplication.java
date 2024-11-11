@@ -1,13 +1,13 @@
-package com.agilelens;
+package com.momentum;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AgilelensApplication {
+public class MomentumApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AgilelensApplication.class, args);
+		SpringApplication.run(MomentumApplication.class, args);
 	}
 
 }
