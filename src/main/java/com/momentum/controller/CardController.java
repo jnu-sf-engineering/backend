@@ -40,7 +40,7 @@ public class CardController {
 
     @PostMapping("/{card_id}/move")
     public CommonResponse<CardMoveResponse> move(@PathVariable("card_id") Long card_id,
-                                                 @RequestBody Status status) {
+                                                 @RequestParam("status") Status status) {
         Card card = cardService.findById(card_id);
         Status prev_status = card.getStatus();
 
