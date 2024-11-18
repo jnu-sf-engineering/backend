@@ -39,3 +39,10 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+bootJar {
+	enabled = true  // 실행 가능한 jar 파일 생성
+}
+jar {
+	enabled = false  // 일반 jar 파일 생성 비활성 -> Dockerfile 작성 편의를 위해
+}
