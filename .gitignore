@@ -1,3 +1,5 @@
+README.md
+
 ### Ignore .DS_Store ###
 **/.DS_Store
 
@@ -11,4 +13,8 @@ out/
 !**/src/test/**/out/
 
 ### build 
+.gradle/
 build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
