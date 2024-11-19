@@ -97,4 +97,3 @@ VALUES (1, 'Backend API Test', '["Yeonsu", "Jisong", "Kyeongjun"]', 1);
 
 INSERT INTO `CARD` (`SPRINT_ID`, `CARD_CONTENT`, `CARD_PARTICIPANTS`, `CARD_STATUS`)
 VALUES (1, 'Backend API Development', '["Yeonsu", "Jisong", "Kyeongjun"]', 2);
-
