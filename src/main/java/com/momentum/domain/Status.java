@@ -1,6 +1,7 @@
 package com.momentum.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
@@ -14,17 +15,22 @@ public enum Status {
         this.value = value;
     }
 
+    @JsonValue
+    public String getStatusString() {
+        // 직렬화할 때 상태를 소문자로 변환하여 반환
+        return name().toLowerCase();
+    }
+
     @JsonCreator
     public static Status from(String value) {
-        String v = value.toUpperCase();
-
-        if (v.equals("TO_DO"))
-            return Status.TO_DO;
-        else if (v.equals("IN_PROGRESS"))
-            return Status.IN_PROGRESS;
-        else if (v.equals("DONE"))
-            return Status.DONE;
-        else
-            throw new IllegalArgumentException("'"+value+"'는 허용한 상태값 이외의 값입니다.");
+        if (value == null) {
+            throw new IllegalArgumentException("Status 값은 null일 수 없습니다.");
+        }
+        return switch (value.toUpperCase()) {
+            case "TO_DO", "0" -> TO_DO;
+            case "IN_PROGRESS", "1" -> IN_PROGRESS;
+            case "DONE", "2" -> DONE;
+            default -> throw new IllegalArgumentException("'" + value + "'는 허용된 상태 값이 아닙니다.");
+        };
     }
 }
