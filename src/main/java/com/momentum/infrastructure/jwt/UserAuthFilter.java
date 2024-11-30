@@ -17,10 +17,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
+
+import static com.momentum.config.SecurityConfig.AUTH_WHITELIST;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,6 +35,14 @@ public class UserAuthFilter extends OncePerRequestFilter {  // OncePerRequestFil
     private final ProjectService projectService;
     private final UserService userService;
     private final ObjectMapper objectMapper = new ObjectMapper(); // JSON 파싱용 ObjectMapper
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+    // white list는 필터 거치지 않음
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return Arrays.stream(AUTH_WHITELIST).anyMatch(pattern -> pathMatcher.match(pattern, uri));
+    }
 
     // 요청 권한 검증 필터
     @Override
