@@ -18,7 +18,7 @@ public class SprintService {
     @Transactional
     public Long save(SprintCreateRequest request) {
         Sprint sprint = Sprint.builder()
-                .project(projectService.getOne(request.getProject_id()))
+                .project(projectService.findById(request.getProject_id()))
                 .name(request.getName())
                 .start_date(request.getStart_date())
                 .end_date(request.getEnd_date())
@@ -43,10 +43,6 @@ public class SprintService {
                 .orElseThrow(() -> new IllegalArgumentException(("해당 스프린트가 없습니다. id=" + id)));
 
         sprintRepository.delete(sprint);
-    }
-
-    public Sprint getOne(Long id) {
-        return sprintRepository.getById(id);
     }
 
     public Sprint findById(Long id) {

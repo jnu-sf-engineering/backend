@@ -22,7 +22,7 @@ public class CardService {
                 .content(request.getContent())
                 .participants(request.getParticipants())
                 .status(request.getStatus())
-                .sprint(sprintService.getOne(request.getSprint_id()))
+                .sprint(sprintService.findById(request.getSprint_id()))
                 .build();
 
         cardRepository.save(card);
@@ -51,10 +51,6 @@ public class CardService {
         Status prev_status = card.getStatus();
         card.move(status);
         return prev_status;
-    }
-
-    public Card getOne(Long id) {
-        return cardRepository.getById(id);
     }
 
     public Card findById(Long id) {

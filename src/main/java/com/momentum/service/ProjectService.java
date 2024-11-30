@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProjectService {
     private final ProjectRepository projectRepository;
 
-    public Project getOne(Long id) {
-        return projectRepository.getById(id);
+    public Project findById(Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(("해당 프로젝트가 없습니다. id=" + id)));
+        return project;
     }
 }
