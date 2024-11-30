@@ -1,13 +1,11 @@
 package com.momentum.infrastructure.jwt;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
 import javax.crypto.SecretKey;
 import java.util.Base64;
 
@@ -17,13 +15,8 @@ public class JwtUtil {
     private final SecretKey key;
 
     public JwtUtil(@Value("${jwt.access-secret}") String secretKey) {
-//        byte[] keyBytes = Base64.getUrlDecoder().decode(secretKey);
-//        byte[] keyBytes = DatatypeConverter.parseBase64Binary(secretKey);
-//        Decoders.BASE64.decode(secretKey)
-//        byte[] keyBytes = Decoders.BASE64URL.decode(secretKey); // Base64Url 디코딩
-//        this.key = Keys.hmacShaKeyFor(keyBytes);  // HS256 알고리즘
-        byte[] decodedKey = Base64.getUrlDecoder().decode(secretKey);
-        this.key = Keys.hmacShaKeyFor(decodedKey);
+        byte[] decodedKey = Base64.getUrlDecoder().decode(secretKey);  // Base64Url 디코딩
+        this.key = Keys.hmacShaKeyFor(decodedKey);  // HS256 알고리즘
     }
 
     // JWT 검증

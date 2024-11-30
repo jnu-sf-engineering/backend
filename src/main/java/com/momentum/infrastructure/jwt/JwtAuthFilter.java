@@ -28,8 +28,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {  // OncePerRequestFilt
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-//        String authorizationHeader = request.getHeader("Authorization");
-
         // Request로부터 JWT token 추출
         String token = extractTokenFromRequest(request);
 
