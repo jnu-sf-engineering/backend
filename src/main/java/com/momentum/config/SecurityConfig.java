@@ -12,11 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -33,7 +31,7 @@ public class SecurityConfig {
     private final ProjectService projectService;
     private final UserService userService;
 
-    private static final String[] AUTH_WHITELIST = {
+    public static final String[] AUTH_WHITELIST = {
             "/swagger-ui/**", "/api-docs", "/swagger-ui-custom.html",
             "/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html"
     };
@@ -63,12 +61,14 @@ public class SecurityConfig {
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
 
-        // 권한 규칙 작성 및 처리
+        // 인증 처리 규칙 설정
         http.authorizeHttpRequests(authorize -> authorize
                     .requestMatchers(AUTH_WHITELIST).permitAll()  // white list는 인증 필요 없음
-                        .anyRequest().authenticated())  // white list를 제외한 경로 인증 설정
-                    .addFilterAfter(userAuthFilter, UsernamePasswordAuthenticationFilter.class)  // user_id 일치 검증 필터
-                    .addFilterBefore(jwtAuthFilter, UserAuthFilter.class);  // JWT 유효성 검증 필터
+                    .anyRequest().authenticated());  // white list를 제외한 경로 인증 설정
+
+        // 권한 인증 필터 추가
+        http.addFilterBefore(userAuthFilter, UsernamePasswordAuthenticationFilter.class)  // user_id 일치 검증 필터
+            .addFilterBefore(jwtAuthFilter, UserAuthFilter.class);  // JWT 유효성 검증 필터
         return http.build();
     }
 }
