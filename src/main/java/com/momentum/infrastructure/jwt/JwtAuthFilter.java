@@ -1,6 +1,8 @@
 package com.momentum.infrastructure.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.momentum.global.ErrorCode;
+import com.momentum.global.CommonResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -55,23 +57,40 @@ public class JwtAuthFilter extends OncePerRequestFilter {  // OncePerRequestFilt
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (ServletException e) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            throw new RuntimeException("Cannot Authorize the Request.", e);
+            sendJsonResponse(response, CommonResponse.error(
+                    ErrorCode.builder().code(101).reason(e.getMessage()).status(HttpServletResponse.SC_UNAUTHORIZED).build()));
+            return;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            throw new RuntimeException("Invalid JWT Token", e);
+            sendJsonResponse(response, CommonResponse.error(
+                    ErrorCode.builder().code(1004).reason("Invalid JWT Token").status(HttpServletResponse.SC_UNAUTHORIZED).build()));
+            return;
         } catch (ExpiredJwtException e) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            throw new RuntimeException("Expired JWT Token", e);
+            sendJsonResponse(response, CommonResponse.error(
+                    ErrorCode.builder().code(1004).reason("Expired JWT Token").status(HttpServletResponse.SC_UNAUTHORIZED).build()));
+            return;
         } catch (UnsupportedJwtException e) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            throw new RuntimeException("Unsupported JWT Token", e);
+            sendJsonResponse(response, CommonResponse.error(
+                    ErrorCode.builder().code(1004).reason("Unsupported JWT Token").status(HttpServletResponse.SC_UNAUTHORIZED).build()));
+            return;
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            throw new RuntimeException("JWT claims string is empty.", e);
+            sendJsonResponse(response, CommonResponse.error(
+                    ErrorCode.builder().code(1004).reason("JWT claims string is empty.").status(HttpServletResponse.SC_UNAUTHORIZED).build()));
+            return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    public void sendJsonResponse(HttpServletResponse response, CommonResponse<Object> data) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        if (data.getError() != null) {
+            response.setStatus(data.getError().getStatus());
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(data);
+
+        response.getWriter().write(json);
     }
 
     // Request 로부터 JWT token 추출
