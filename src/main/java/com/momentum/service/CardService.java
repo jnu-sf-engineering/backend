@@ -5,6 +5,7 @@ import com.momentum.domain.Status;
 import com.momentum.dto.CardCreateRequest;
 import com.momentum.dto.CardUpdateRequest;
 import com.momentum.repository.CardRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,7 @@ public class CardService {
     @Transactional
     public Long update(Long id, CardUpdateRequest request) {
         Card card = cardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(("해당 카드가 없습니다. id=" + id)));
+                .orElseThrow(() -> new EntityNotFoundException(("해당 카드가 없습니다. id=" + id)));
 
         return card.update(request.getContent(), request.getParticipants(), request.getStatus());
     }
@@ -39,24 +40,20 @@ public class CardService {
 
     public void delete(Long id) {
         Card card = cardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(("해당 카드가 없습니다. id=" + id)));
+                .orElseThrow(() -> new EntityNotFoundException(("해당 카드가 없습니다. id=" + id)));
 
         cardRepository.delete(card);
     }
     @Transactional
-    public Status move(Long id, Status status) {
+    public void move(Long id, Status status) {
         Card card = cardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(("해당 카드가 없습니다. id=" + id)));
-
-        Status prev_status = card.getStatus();
+                .orElseThrow(() -> new EntityNotFoundException(("해당 카드가 없습니다. id=" + id)));
         card.move(status);
-        return prev_status;
     }
 
     public Card findById(Long id) {
-        Card card = cardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(("해당 카드가 없습니다. id=" + id)));
-        return card;
+        return cardRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(("해당 카드가 없습니다. id=" + id)));
     }
 }
 
