@@ -2,10 +2,8 @@ package com.momentum.config;
 
 import com.momentum.infrastructure.jwt.JwtAuthFilter;
 import com.momentum.infrastructure.jwt.JwtUtil;
+import com.momentum.infrastructure.jwt.MissingPathVariableFilter;
 import com.momentum.infrastructure.jwt.UserAuthFilter;
-import com.momentum.service.CardService;
-import com.momentum.service.ProjectService;
-import com.momentum.service.SprintService;
 import com.momentum.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +24,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
     private final JwtUtil jwtUtil;
-    private final CardService cardService;
-    private final SprintService sprintService;
-    private final ProjectService projectService;
     private final UserService userService;
 
     public static final String[] AUTH_WHITELIST = {
@@ -47,7 +42,9 @@ public class SecurityConfig {
         // JWT 필터 생성
         JwtAuthFilter jwtAuthFilter = new JwtAuthFilter(jwtUtil);
         // User Auth 필터 생성
-        UserAuthFilter userAuthFilter = new UserAuthFilter(cardService, sprintService, projectService, userService);
+        UserAuthFilter userAuthFilter = new UserAuthFilter(userService);
+        // Path Variable 필터 생성
+        MissingPathVariableFilter missingPathVariableFilter = new MissingPathVariableFilter();
 
         // CSRF, CORS
         http.csrf(AbstractHttpConfigurer::disable);
@@ -66,9 +63,10 @@ public class SecurityConfig {
                     .requestMatchers(AUTH_WHITELIST).permitAll()  // white list는 인증 필요 없음
                     .anyRequest().authenticated());  // white list를 제외한 경로 인증 설정
 
-        // 권한 인증 필터 추가
+        // 검증 필터 추가
         http.addFilterBefore(userAuthFilter, UsernamePasswordAuthenticationFilter.class)  // user_id 일치 검증 필터
-            .addFilterBefore(jwtAuthFilter, UserAuthFilter.class);  // JWT 유효성 검증 필터
+            .addFilterBefore(jwtAuthFilter, UserAuthFilter.class)  // JWT 유효성 검증 필터
+            .addFilterBefore(missingPathVariableFilter, JwtAuthFilter.class);  // Path Variable 검증 필터
         return http.build();
     }
 }

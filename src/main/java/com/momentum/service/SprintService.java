@@ -1,12 +1,16 @@
 package com.momentum.service;
 
+import com.momentum.domain.Project;
 import com.momentum.domain.Sprint;
 import com.momentum.dto.SprintCreateRequest;
 import com.momentum.dto.SprintUpdateRequest;
 import com.momentum.repository.SprintRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,7 +35,7 @@ public class SprintService {
     @Transactional
     public Long update(Long id, SprintUpdateRequest request) {
         Sprint sprint = sprintRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(("해당 스프린트가 없습니다. id=" + id)));
+                .orElseThrow(() -> new EntityNotFoundException("요청한 스프린트가 없습니다. id=" + id));
 
         return sprint.update(request.getName(), request.getStart_date(), request.getEnd_date());
     }
@@ -40,14 +44,17 @@ public class SprintService {
 
     public void delete(Long id) {
         Sprint sprint = sprintRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(("해당 스프린트가 없습니다. id=" + id)));
+                .orElseThrow(() -> new EntityNotFoundException(("요청한 스프린트가 없습니다. id=" + id)));
 
         sprintRepository.delete(sprint);
     }
 
     public Sprint findById(Long id) {
-        Sprint sprint = sprintRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(("해당 스프린트가 없습니다. id=" + id)));
-        return sprint;
+        return sprintRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(("요청한 스프린트가 없습니다. id=" + id)));
+    }
+
+    public boolean existsByProjectIdAndName(Long project_id, String name) {
+        return sprintRepository.existsByProjectIdAndName(project_id, name);
     }
 }

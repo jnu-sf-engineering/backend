@@ -4,6 +4,7 @@ CREATE TABLE USER (
     USER_ID BIGINT(20) NOT NULL AUTO_INCREMENT,
     EMAIL VARCHAR(255) NOT NULL UNIQUE,
     PASSWORD VARCHAR(255) NOT NULL,
+    NICKNAME VARCHAR(255) NOT NULL UNIQUE,
     PRIMARY KEY (USER_ID)
 ) ENGINE=InnoDB;
 
@@ -83,8 +84,11 @@ CREATE TABLE CSS (
 ) ENGINE=InnoDB;
 
 
-INSERT INTO `USER` (`EMAIL`, `PASSWORD`)
-VALUES ('test@example.com', 'testpassword');
+INSERT INTO `USER` (`EMAIL`, `PASSWORD`, `NICKNAME`)
+VALUES ('test@example.com', 'testpassword', 'test');
+
+INSERT INTO `USER` (`EMAIL`, `PASSWORD`, `NICKNAME`)
+VALUES ('test2@example.com', 'test2password', 'test2');
 
 INSERT INTO `PROJECT` (`USER_ID`, `PROJECT_NAME`, `MANAGER`, `SPRINT_COUNT`)
 VALUES (1, 'Momentum Project', 'Momentum', 2);
