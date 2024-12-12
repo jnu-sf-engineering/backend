@@ -29,13 +29,13 @@ public class Project {
 
     @Column(name = "SPRINT_COUNT",
             nullable = true, columnDefinition = "TINYINT")
-    private byte sprint_count;
+    private Byte sprint_count;
 
     @Column(name = "MANAGER",
             length = 255, nullable = false)
     private String manager;
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Sprint> sprints = new ArrayList<>();
 
     @Builder
@@ -43,8 +43,12 @@ public class Project {
         this.user = user;
         this.name = name;
         this.manager = manager;
+        this.sprint_count = 0;
     }
     public void addSprint(Sprint sprint) {
+        if (this.sprint_count == null) {
+            this.sprint_count = 0;
+        }
         this.sprints.add(sprint);
         this.sprint_count++;
     }

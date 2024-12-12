@@ -24,7 +24,7 @@ public class Sprint {
             nullable = false)
     Project project;
 
-    @OneToMany(mappedBy = "sprint")
+    @OneToMany(mappedBy = "sprint", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Card> cards = new ArrayList<>();
 
     @Column(name = "SPRINT_NAME",
