@@ -1,5 +1,6 @@
-package com.momentum.domain;
+package com.momentum;
 
+import com.momentum.domain.*;
 import com.momentum.repository.CardRepository;
 import com.momentum.repository.ProjectRepository;
 import com.momentum.repository.SprintRepository;
@@ -14,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +39,7 @@ public class CardRepositoryTest {
     @Before
     public void init() {
         // user
-        user = User.builder().email("test@jnu.ac.kr").password("jnu-sf-engineering")
+        user = User.builder().email("test@jnu.ac.kr").password("jnu-sf-engineering").nickname("test")
                 .build();
         userRepository.save(user);
 
@@ -72,8 +72,9 @@ public class CardRepositoryTest {
     public void 카드저장_읽기() {
         // given
         // when
-        List<Card> cardList = cardRepository.findAll();
-        Card card = cardList.get(0);
+        Long id = card.getId();
+        Optional<Card> oc = cardRepository.findById(id);
+        Card card = oc.get();
 
         // then
         assertThat(card.getContent()).isEqualTo(content);
@@ -106,10 +107,7 @@ public class CardRepositoryTest {
     public void 카드삭제() {
         // given
         // when
-        List<Card> cardList = cardRepository.findAll();
-        Card card = cardList.get(0);
         Long id = card.getId();
-
         cardRepository.delete(card);
         Optional<Card> oc = cardRepository.findById(id);
 
