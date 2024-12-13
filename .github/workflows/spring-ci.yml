@@ -13,6 +13,7 @@ on:
 # Repository를 read 할 수 있는 권한 부여
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   code-coverage:
