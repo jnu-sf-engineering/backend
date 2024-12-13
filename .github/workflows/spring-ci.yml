@@ -11,7 +11,8 @@ on:
       - main
 
 # Repository를 read 할 수 있는 권한 부여
-permissions: read
+permissions:
+  contents: read
 
 jobs:
   code-coverage:
@@ -21,7 +22,7 @@ jobs:
       db:
         image: mysql:8.0
         ports:
-          3306:3306
+          - 3306:3306
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.RDS_DATABASE_PASSWORD }}
           MYSQL_DATABASE: ${{ secrets.RDS_DB_NAME }}
