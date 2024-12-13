@@ -10,10 +10,8 @@ COPY src src
 
 # gradlew 실행 권한 부여
 RUN chmod +x ./gradlew
-# gradlew를 통해 테스트 통과 및 실행 가능한 jar파일 생성
-RUN ./gradlew build
-## gradlew를 통해 실행 가능한 jar파일 생성
-#RUN ./gradlew bootJar
+# gradlew를 통해 실행 가능한 jar파일 생성
+RUN ./gradlew bootJar
 
 # 최종 실행용 멀티 플랫폼 배포 경량화 베이스 이미지 생성
 FROM openjdk:17-jdk-slim
