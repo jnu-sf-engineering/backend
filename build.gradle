@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id 'jacoco'
 }
 
 group = 'com'
@@ -11,6 +12,10 @@ java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
+}
+
+jacoco {
+	toolVersion '0.8.11'
 }
 
 configurations {
@@ -46,6 +51,7 @@ dependencies {
 	// Test
 	testImplementation 'junit:junit:4.13.1'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	// Validation
@@ -55,8 +61,44 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 }
 
-tasks.named('test') {
+test {
 	useJUnitPlatform()
+	finalizedBy 'jacocoTestReport'
+}
+
+jacocoTestReport {
+	dependsOn test
+
+	executionData(fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec"))
+	reports {
+		xml.required = true
+		html.required = true
+	}
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it,
+					// 커버리지에서 제외할 클래스
+					exclude: ["com/momentum/MomentumApplication.class",
+							  "com/momentum/infrastructure/**",
+							  "com/momentum/exception/**"])
+		}))
+		finalizedBy 'jacocoTestCoverageVerification'
+	}
+}
+
+// 테스트 커버리지
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			enabled = true
+			element 'CLASS'
+			limit {
+				counter = 'INSTRUCTION'  // 바이트 코드 명령 수
+				value = 'COVEREDRATIO'
+				minimum = 0.0
+			}
+		}
+	}
 }
 
 bootJar {
