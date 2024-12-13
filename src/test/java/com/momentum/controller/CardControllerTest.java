@@ -5,15 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.momentum.domain.*;
 import com.momentum.dto.CardCreateRequest;
 import com.momentum.dto.CardUpdateRequest;
-import com.momentum.dto.SprintCreateRequest;
-import com.momentum.dto.SprintUpdateRequest;
 import com.momentum.repository.CardRepository;
 import com.momentum.repository.ProjectRepository;
 import com.momentum.repository.SprintRepository;
 import com.momentum.repository.UserRepository;
 import com.momentum.service.CardService;
-import com.momentum.service.ProjectService;
-import com.momentum.service.SprintService;
+import com.momentum.service.DiscordWebhookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -55,6 +53,8 @@ class CardControllerTest {
     @Autowired
     private WebApplicationContext context;
 
+    @MockBean
+    private DiscordWebhookService discordWebhookService;  // 가짜 서비스 (Webhook 전송 안함)
     @Autowired
     UserRepository userRepository;
     @Autowired
