@@ -1,11 +1,11 @@
 package com.momentum.controller;
 
-import com.momentum.dto.SprintCreateRequest;
-import com.momentum.dto.SprintCreateResponse;
-import com.momentum.dto.SprintFindResponse;
-import com.momentum.dto.SprintUpdateRequest;
+import com.momentum.domain.Sprint;
+import com.momentum.domain.User;
+import com.momentum.dto.*;
 import com.momentum.global.ErrorCode;
 import com.momentum.global.CommonResponse;
+import com.momentum.service.DiscordWebhookService;
 import com.momentum.service.ProjectService;
 import com.momentum.service.SprintService;
 import jakarta.validation.Valid;
@@ -17,6 +17,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 public class SprintController {
     private final ProjectService projectService;
     private final SprintService sprintService;
+    private final DiscordWebhookService discordWebhookService;
 
     @PostMapping()
     public ResponseEntity<CommonResponse<Object>> create(@Valid @RequestBody SprintCreateRequest request, BindingResult bindingResult,
@@ -33,8 +36,8 @@ public class SprintController {
             String errorMessage = "필드 데이터 누락입니다.("+extractErrorMessages(bindingResult)+")";
             return responseEntityWithError(3001, errorMessage, HttpStatus.BAD_REQUEST);
         }
-
-        Long user_id = projectService.findById(request.getProject_id()).getUser().getId();
+        User user = projectService.findById(request.getProject_id()).getUser();
+        Long user_id = user.getId();
         permissionAuth(principal, user_id);
 
         if (request.getEnd_date().isBefore(request.getStart_date())) {
@@ -46,8 +49,17 @@ public class SprintController {
 
         SprintCreateResponse response = SprintCreateResponse
                 .from(sprintService.save(request));
-        return ResponseEntity.ok().body(CommonResponse.success(response));
 
+        // Discord Webhook 전송
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+        String start_date = request.getStart_date().format(formatter);
+        String end_date = request.getEnd_date().format(formatter);
+
+        discordWebhookCall(user.getDiscord(),
+                "스프린트 작성 봇", "스프린트가 등록되었습니다.",
+                request.getName(), start_date+" ~ "+end_date);
+
+        return ResponseEntity.ok().body(CommonResponse.success(response));
     }
 
     @GetMapping("/{sprint_id}")
@@ -59,6 +71,25 @@ public class SprintController {
         SprintFindResponse response = SprintFindResponse
                 .from(sprintService.findById(sprint_id));
         return ResponseEntity.ok().body(CommonResponse.success(response));
+    }
+
+    @GetMapping("/{sprint_id}/close")
+    public ResponseEntity<CommonResponse<Object>> close(@PathVariable("sprint_id") Long sprint_id,
+                                                       Principal principal) throws IllegalAccessException {
+        Sprint sprint = sprintService.findById(sprint_id);
+        User user = sprint.getProject().getUser();
+        permissionAuth(principal, user.getId());
+
+        // Discord Webhook 전송
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+        String start_date = sprint.getStart_date().format(formatter);
+        String end_date = sprint.getEnd_date().format(formatter);
+
+        discordWebhookCall(user.getDiscord(),
+                "스프린트 작성 봇", "스프린트가 마감되었습니다.",
+                sprint.getName(), start_date+" ~ "+end_date);
+
+        return ResponseEntity.ok().body(CommonResponse.success());
     }
 
     @PutMapping("/{sprint_id}")
@@ -122,5 +153,20 @@ public class SprintController {
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining(", "));
+    }
+
+    // Discord Webhook 전송
+    void discordWebhookCall(String webhookUrl, String username, String content, String title, String description) {
+        DiscordWebhookMessage.Embed embed = new DiscordWebhookMessage.Embed();
+        embed.setTitle(title);
+        embed.setDescription(description);
+
+        discordWebhookService.callEvent(webhookUrl,
+                DiscordWebhookMessage.builder()
+                        .username(username)
+                        .content(content)
+                        .embeds(List.of(embed))
+                        .build()
+        );
     }
 }

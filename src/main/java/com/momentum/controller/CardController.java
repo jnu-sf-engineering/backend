@@ -2,10 +2,12 @@ package com.momentum.controller;
 
 import com.momentum.domain.Card;
 import com.momentum.domain.Status;
+import com.momentum.domain.User;
 import com.momentum.dto.*;
 import com.momentum.global.CommonResponse;
 import com.momentum.global.ErrorCode;
 import com.momentum.service.CardService;
+import com.momentum.service.DiscordWebhookService;
 import com.momentum.service.SprintService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -24,6 +28,7 @@ import java.util.stream.Collectors;
 public class CardController {
     private final CardService cardService;
     private final SprintService sprintService;
+    private final DiscordWebhookService discordWebhookService;
 
     @PostMapping()
     public ResponseEntity<CommonResponse<Object>> create(@Valid @RequestBody CardCreateRequest request, BindingResult bindingResult,
@@ -33,11 +38,17 @@ public class CardController {
             return responseEntityWithError(4001, errorMessage, HttpStatus.BAD_REQUEST);
         }
 
-        Long user_id = sprintService.findById(request.getSprint_id()).getProject().getUser().getId();
-        permissionAuth(principal, user_id);
+        User user = sprintService.findById(request.getSprint_id()).getProject().getUser();
+        permissionAuth(principal, user.getId());
 
         CardCreateResponse response = CardCreateResponse
                 .from(cardService.save(request));
+
+        // Discord Webhook 전송
+        discordWebhookCall(user.getDiscord(),
+                "할일 작성 봇", "할일이 등록되었습니다.",
+                request.getContent(), request.getParticipants().toString());
+
         return ResponseEntity.ok(CommonResponse.success(response));
     }
 
@@ -61,11 +72,19 @@ public class CardController {
             return responseEntityWithError(4001, errorMessage, HttpStatus.BAD_REQUEST);
         }
 
-        Long user_id = cardService.findById(card_id).getSprint().getProject().getUser().getId();
-        permissionAuth(principal, user_id);
+        User user = cardService.findById(card_id).getSprint().getProject().getUser();
+        permissionAuth(principal, user.getId());
 
         CardCreateResponse response = CardCreateResponse
                 .from(cardService.update(card_id, request));
+
+        // Discord Webhook 전송
+        if (request.getStatus() == Status.DONE) {
+            discordWebhookCall(user.getDiscord(),
+                    "할일 작성 봇", "할일이 완료되었습니다.",
+                    request.getContent(), request.getParticipants().toString());
+        }
+
         return ResponseEntity.ok(CommonResponse.success(response));
     }
 
@@ -86,11 +105,19 @@ public class CardController {
         Card card = cardService.findById(card_id);
         Status prev_status = card.getStatus();
 
-        Long user_id = card.getSprint().getProject().getUser().getId();
-        permissionAuth(principal, user_id);
+        User user = card.getSprint().getProject().getUser();
+        permissionAuth(principal, user.getId());
 
         cardService.move(card_id, status);
         CardMoveResponse response = CardMoveResponse.from(card, prev_status);
+
+        // Discord Webhook 전송
+        if (status == Status.DONE) {
+            discordWebhookCall(user.getDiscord(),
+                    "할일 작성 봇", "할일이 완료되었습니다.",
+                    card.getContent(), card.getParticipants().toString());
+        }
+
         return ResponseEntity.ok(CommonResponse.success(response));
     }
 
@@ -120,5 +147,20 @@ public class CardController {
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining(", "));
+    }
+
+    // Discord Webhook 전송
+    void discordWebhookCall(String webhookUrl, String username, String content, String title, String description) {
+        DiscordWebhookMessage.Embed embed = new DiscordWebhookMessage.Embed();
+        embed.setTitle(title);
+        embed.setDescription(description);
+
+        discordWebhookService.callEvent(webhookUrl,
+                DiscordWebhookMessage.builder()
+                        .username(username)
+                        .content(content)
+                        .embeds(List.of(embed))
+                        .build()
+        );
     }
 }
