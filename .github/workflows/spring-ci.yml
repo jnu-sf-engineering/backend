@@ -69,5 +69,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 10
           min-coverage-changed-files: 30
-          title: "🌳️Code Coverage 🌳"
+          title: "🌳 Code Coverage 🌳"
           update-comment: true  # 새로운 코멘트 등록이 아닌, 기존의 코멘트를 업데이트
