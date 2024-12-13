@@ -19,7 +19,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Project> projects = new ArrayList<>();
 
     @Column(name = "EMAIL",
@@ -30,9 +30,19 @@ public class User {
             length = 255, nullable = false)
     private String password;
 
+    @Column(name = "NICKNAME",
+            length = 255, nullable = false)
+    private String nickname;
+
+    @Column(name = "DISCORD",
+            length = 255, nullable = false)
+    private String discord;
+
     @Builder
-    public User(String email, String password) {
+    public User(String email, String password, String nickname, String discord) {
         this.email = email;
         this.password = password;
+        this.nickname = nickname;
+        this.discord = discord;
     }
 }
