@@ -1,14 +1,14 @@
 name: Spring Boot CI
 run-name: 테스트 자동화 및 커버리지 분석
 
-# Event: main 브랜치에 push 혹은 pull request가 발생할 경우 동작
+# Event: main 브랜치에 pull request가 발생할 경우 동작
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
+    types:
+      - opened
+      - reopened
 
 # Repository를 read 할 수 있는 권한 부여
 permissions:

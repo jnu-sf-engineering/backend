@@ -55,5 +55,6 @@ jobs:
             cd yeonsu
             sudo docker stop spring
             sudo docker rm spring
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/springboot_app:latest
             sudo docker run --platform linux/amd64 -d -p 8081:8080 --name spring --env-file .env ${{ secrets.DOCKER_USERNAME }}/springboot_app:latest
             sudo docker image prune -a -f
