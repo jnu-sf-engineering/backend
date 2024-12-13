@@ -34,10 +34,15 @@ public class User {
             length = 255, nullable = false)
     private String nickname;
 
+    @Column(name = "DISCORD",
+            length = 255, nullable = false)
+    private String discord;
+
     @Builder
-    public User(String email, String password, String nickname) {
+    public User(String email, String password, String nickname, String discord) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.discord = discord;
     }
 }

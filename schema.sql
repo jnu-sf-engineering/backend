@@ -1,10 +1,11 @@
-USE jnu-sf;
+USE `jnu-sf`;
 
 CREATE TABLE USER (
     USER_ID BIGINT(20) NOT NULL AUTO_INCREMENT,
     EMAIL VARCHAR(255) NOT NULL UNIQUE,
     PASSWORD VARCHAR(255) NOT NULL,
     NICKNAME VARCHAR(255) NOT NULL,
+    DISCORD VARCHAR(255) NOT NULL,
     PRIMARY KEY (USER_ID)
 ) ENGINE=InnoDB;
 
@@ -83,9 +84,9 @@ CREATE TABLE CSS (
     FOREIGN KEY (RETRO_ID) REFERENCES RETROSPECT (RETRO_ID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-INSERT INTO `USER` (`EMAIL`, `PASSWORD`, `NICKNAME`)
-VALUES ('test@example.com', 'testpassword', 'test'),
-       ('test2@example.com', 'test2password', 'test2');
+INSERT INTO `USER` (`EMAIL`, `PASSWORD`, `NICKNAME`, `DISCORD`)
+VALUES ('test@example.com', 'testpassword', 'test', 'https://discord.com/api/webhooks/1317074642715938897/zZXTbwHvui-zisDMDQ_fowVs3CxyfHh74QETzhpodv_RRYv6AjX5_KcL8Loc7oOcqwNR'),
+       ('test2@example.com', 'test2password', 'test2', 'https://discord.com/api/webhooks/1317074642715938897/zZXTbwHvui-zisDMDQ_fowVs3CxyfHh74QETzhpodv_RRYv6AjX5_KcL8Loc7oOcqwNR');
 
 INSERT INTO `PROJECT` (`USER_ID`, `PROJECT_NAME`, `MANAGER`, `SPRINT_COUNT`)
 VALUES (1, 'Momentum Project', 'Momentum', 2);

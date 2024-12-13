@@ -38,7 +38,7 @@ public class Card {
     private Status status;
 
     @Builder
-    public Card( Sprint sprint, String content, Set<String> participants, Status status) {
+    public Card(Sprint sprint, String content, Set<String> participants, Status status) {
         this.sprint = sprint;
         this.content = content;
         this.participants = participants;
