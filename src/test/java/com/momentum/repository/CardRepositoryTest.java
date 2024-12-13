@@ -1,10 +1,6 @@
-package com.momentum;
+package com.momentum.repository;
 
 import com.momentum.domain.*;
-import com.momentum.repository.CardRepository;
-import com.momentum.repository.ProjectRepository;
-import com.momentum.repository.SprintRepository;
-import com.momentum.repository.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +36,7 @@ public class CardRepositoryTest {
     public void init() {
         // user
         user = User.builder().email("test@jnu.ac.kr").password("jnu-sf-engineering").nickname("test")
+                .discord("https://discord.com/api/webhooks/1317074642715938897/zZXTbwHvui-zisDMDQ_fowVs3CxyfHh74QETzhpodv_RRYv6AjX5_KcL8Loc7oOcqwNR")
                 .build();
         userRepository.save(user);
 

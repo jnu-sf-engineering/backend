@@ -1,6 +1,5 @@
 package com.momentum.service;
 
-import com.momentum.domain.Project;
 import com.momentum.domain.Sprint;
 import com.momentum.dto.SprintCreateRequest;
 import com.momentum.dto.SprintUpdateRequest;
@@ -9,8 +8,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
