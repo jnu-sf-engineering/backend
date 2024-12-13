@@ -1,4 +1,4 @@
-# OpenJDK 17을 기반으로 하는 멀티 플랫폼 경량화 스프링 부트 이미지
+# OpenJDK 17을 기반으로 하는 멀티 플랫폼 개발 경량화 스프링 부트 이미지
 # 빌드용 베이스 이미지 + 별칭
 FROM openjdk:17-slim AS builder
 
@@ -10,12 +10,13 @@ COPY src src
 
 # gradlew 실행 권한 부여
 RUN chmod +x ./gradlew
-# gradlew를 통해 실행 가능한 jar파일 생성
-RUN ./gradlew bootJar
+# gradlew를 통해 테스트 통과 및 실행 가능한 jar파일 생성
+RUN ./gradlew build
+## gradlew를 통해 실행 가능한 jar파일 생성
+#RUN ./gradlew bootJar
 
-
-# 최종 실행용 베이스 이미지 생성
-FROM openjdk:17-slim
+# 최종 실행용 멀티 플랫폼 배포 경량화 베이스 이미지 생성
+FROM openjdk:17-jdk-slim
 
 # 작업 디렉토리 설정
 WORKDIR /app

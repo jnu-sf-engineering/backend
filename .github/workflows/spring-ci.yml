@@ -1,0 +1,71 @@
+name: Spring Boot CI
+run-name: 테스트 자동화 및 커버리지 분석
+
+# Event: main 브랜치에 push 혹은 pull request가 발생할 경우 동작
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# Repository를 read 할 수 있는 권한 부여
+permissions: read
+
+jobs:
+  code-coverage:
+    name: Test Coverage 분석
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: mysql:8.0
+        ports:
+          3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.RDS_DATABASE_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.RDS_DB_NAME }}
+          MYSQL_USER: ${{ secrets.RDS_DATABASE_USERNAME }}
+          MYSQL_PASSWORD: ${{ secrets.RDS_DATABASE_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Wait for MySQL setting
+      - name: MySQL 구성을 위한 대기
+        run: sleep 30
+
+      # DB 테이블 구성
+      - name: Initialize Database Schema
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u ${{ secrets.RDS_DATABASE_USERNAME }} -p ${{ secrets.RDS_DATABASE_PASSWORD }} ${{ secrets.RDS_DB_NAME }} < ./schema.sql
+
+      - name: JDK 11 설치
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: gradlew 실행 권한 부여
+        run: chmod +x gradlew
+
+      - name: application-jwt.yml 생성
+        run: |
+          cd ./src/main/resources
+          touch ./application-jwt.yml
+          echo "${{ secrets.APPLICATION_JWT_YML }}" | base64 --decode > ./application-jwt.yml
+
+      - name: Test with Gradle
+        run: ./gradlew build jacocoTestReport
+          
+      # 테스트 커버리지 Report를 PR에 Comment에 등록 (Instruction 기준)
+      - name: Jacoco Report to PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 10
+          min-coverage-changed-files: 30
+          title: "🌳️Code Coverage 🌳"
+          update-comment: true  # 새로운 코멘트 등록이 아닌, 기존의 코멘트를 업데이트
