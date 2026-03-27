@@ -1,5 +1,3 @@
-전남대학교 소프트웨어공학론 프로젝트 "회고 중심 애자일 지원 서비스" 백엔드 레포지토리입니다.
-
 # MOMENTUM
 ![모멘텀 표지](https://github.com/user-attachments/assets/2d7f5c21-036a-4d01-b353-f12a0326cd64)
 
